@@ -1,4 +1,4 @@
-module github.com/MrSong0607/netease-im
+module github.com/libra82/netease-im
 
 require (
 	github.com/go-resty/resty v1.7.0
@@ -6,3 +6,5 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742
 )
+
+go 1.13

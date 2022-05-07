@@ -54,6 +54,13 @@ msg := &netease.VideoMessage{URL: "video file url", Md5: "可以填任意md5", E
 err := client.SendBatchVideoMessage("1", []string{"3"}, msg, nil)
 ```
 
+##### 创建聊天室
+
+```
+chatroom := &netease.ImChatRoomReq{Creator: "1", Name: "一场篮球比赛"}
+room, err := client.CreateChatRoom(chatroom)
+```
+
 ## 已实现功能
 
 - [ ] 通信服务

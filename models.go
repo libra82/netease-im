@@ -217,3 +217,465 @@ type RoomInfo struct {
 	CreateTime  int64  `json:"createtime"`  //房间创建时间【int64】
 	Destroytime int64  `json:"destroytime"` //房间结束时间【int64】
 }
+
+type ImChatRoomReq struct {
+	Creator      string `json:"creator"`      //是	聊天室属主的账号accid
+	Name         string `json:"name"`         //是	聊天室名称，长度限制128个字符
+	Announcement string `json:"announcement"` //否	公告，长度限制4096个字符
+	Broadcasturl string `json:"broadcasturl"` //否	直播地址，长度限制1024个字符
+	Ext          string `json:"ext"`          //否	扩展字段，最长4096字符
+	Queuelevel   int    `json:"queuelevel"`   //否	队列管理权限：0:所有人都有权限变更队列，1:只有主播管理员才能操作变更。默认0
+	Bid          string `json:"bid"`          //否	反垃圾业务ID，JSON字符串，{"textbid":"","picbid":""}，若不填则使用原来的反垃圾配置
+}
+type ImChatRoomRes struct {
+	Roomid       int    `json:"roomid"`       //房间ID
+	Valid        bool   `json:"valid"`        //有效性
+	Announcement string `json:"announcement"` //公告，长度限制4096个字符
+	Name         string `json:"name"`         //聊天室名称，长度限制128个字符
+	Broadcasturl string `json:"broadcasturl"` //直播地址，长度限制1024个字符
+	Ext          string `json:"ext"`          //扩展字段，最长4096字符
+	Creator      string `json:"creator"`      //聊天室属主的账号accid
+}
+type ImChatRoomInfoReq struct {
+	Roomid              int64  `json:"roomid"` //是	聊天室id
+	NeedOnlineUserCount string //否  是否需要返回在线人数，true或false，默认false
+}
+type ImChatRoomInfoRes struct {
+	Roomid          int    `json:"roomid"`          //房间ID
+	Valid           bool   `json:"valid"`           //有效性
+	Muted           bool   `json:"muted"`           //聊天室是否处于全体禁言状态，全体禁言时仅管理员和创建者可以发言
+	Announcement    string `json:"announcement"`    //公告，长度限制4096个字符
+	Name            string `json:"name"`            //聊天室名称，长度限制128个字符
+	Broadcasturl    string `json:"broadcasturl"`    //直播地址，长度限制1024个字符
+	Onlineusercount int    `json:"onlineusercount"` //在线人数
+	Ext             string `json:"ext"`             //扩展字段，最长4096字符
+	Creator         string `json:"creator"`         //聊天室属主的账号accid
+	Queuelevel      int    `json:"queuelevel"`      //否	队列管理权限：0:所有人都有权限变更队列，1:只有主播管理员才能操作变更。默认0
+	Ionotify        bool   `json:"ionotify"`        // 聊天室进出通知是否开启
+}
+type ImChatRoomBatchInfoReq struct {
+	Roomids             string `json:"roomids"` //是	多个roomid，格式为：["6001","6002","6003"]（JSONArray对应的roomid，如果解析出错，会报414错误），限20个roomid
+	NeedOnlineUserCount string //否  是否需要返回在线人数，true或false，默认false
+}
+type ImChatRoomBatchBatchInfoRes struct {
+	NoExistRooms []int64             `json:"noExistRooms"` //不存在的聊天室id列表
+	SuccRooms    []ImChatRoomInfoRes `json:"succRooms"`
+	FailRooms    []int64             `json:"failRooms"` //失败的聊天室id,有可能是查的时候有500错误
+}
+type ImChatRoomUpdateReq struct {
+	Roomid       int64  `json:"roomid"`       //是	聊天室id
+	Name         string `json:"name"`         //否	聊天室名称，长度限制128个字符
+	Announcement string `json:"announcement"` //否	公告，长度限制4096个字符
+	Broadcasturl string `json:"broadcasturl"` //否	直播地址，长度限制1024个字符
+	Ext          string `json:"ext"`          //否	扩展字段，最长4096字符
+	NeedNotify   string `json:"needNotify"`   //否	true或false,是否需要发送更新通知事件，默认true
+	NotifyExt    string `json:"notifyExt"`    //否	通知事件扩展字段，长度限制2048
+	Queuelevel   int    `json:"queuelevel"`   //否	队列管理权限：0:所有人都有权限变更队列，1:只有主播管理员才能操作变更。默认0
+	Bid          string `json:"bid"`          //否	反垃圾业务ID，JSON字符串，{"textbid":"","picbid":""}，若不填则使用原来的反垃圾配置
+}
+type ImChatRoomStateReq struct {
+	Roomid   int64  `json:"roomid"`   //是	聊天室id
+	Operator string `json:"operator"` //是	操作者账号，必须是创建者才可以操作
+	Valid    string `json:"valid"`    //是	true或false，false:关闭聊天室；true:打开聊天室
+}
+type ImChatRoomRoleReq struct {
+	Roomid   int64  `json:"roomid"`   //是	聊天室id
+	Operator string `json:"operator"` //是	操作者账号accid
+	Target   string `json:"target"`   //是	被操作者账号accid
+	Opt      int    `json:"opt"`      //是	操作：
+	//1: 设置为管理员，operator必须是创建者
+	//2: 设置普通等级用户，operator必须是创建者或管理员
+	//-1:设为黑名单用户，operator必须是创建者或管理员
+	//-2:设为禁言用户，operator必须是创建者或管理员
+	Optvalue  string `json:"optvalue"`  //是	true或false，true:设置；false:取消设置； 执行“取消”设置后，若成员非禁言且非黑名单，则变成游客
+	NotifyExt string `json:"notifyExt"` //否	通知扩展字段，长度限制2048，请使用json格式
+}
+type ImChatRoomRoleRes struct {
+	Roomid int64  `json:"roomid"` //聊天室id
+	Level  int    `json:"level"`
+	Accid  string `json:"accid"` //聊天室创建者id
+	Type   string `json:"type"`  //返回的type字段可能为：
+	//LIMITED,          //受限用户,黑名单+禁言
+	//COMMON,           //普通固定成员
+	//CREATOR,          //创建者
+	//MANAGER,          //管理员
+	//TEMPORARY,        //临时用户,非固定成员
+}
+type ImChatRoomAddrReq struct {
+	Roomid     int64  `json:"roomid"`     //是	聊天室id
+	Accid      string `json:"accid"`      //是	进入聊天室的账号
+	Clienttype int    `json:"clienttype"` //否	1:weblink（客户端为web端时使用）; 2:commonlink（客户端为非web端时使用）;3:wechatlink(微信小程序使用), 默认1
+	Clientip   string `json:"clientip"`   //否	客户端ip，传此参数时，会根据用户ip所在地区，返回合适的地址
+}
+type ImChatRoomSendMsgReq struct {
+	Roomid    int64  `json:"roomid"`    //是	聊天室id
+	MsgId     string `json:"msgId"`     //是	客户端消息id，使用uuid等随机串，msgId相同的消息会被客户端去重
+	FromAccid string `json:"fromAccid"` //是	消息发出者的账号accid
+	MsgType   int    `json:"msgType"`   //是	消息类型：
+	//0: 表示文本消息，
+	//1: 表示图片，
+	//2: 表示语音，
+	//3: 表示视频，
+	//4: 表示地理位置信息，
+	//6: 表示文件，
+	//10: 表示Tips消息，
+	//100: 自定义消息类型（特别注意，对于未对接易盾反垃圾功能的应用，该类型的消息不会提交反垃圾系统检测）
+	SubType      int    `json:"subType"`      //否	自定义消息子类型，大于0
+	ResendFlag   int    `json:"resendFlag"`   //否	重发消息标记，0：非重发消息，1：重发消息，如重发消息会按照msgid检查去重逻辑
+	Attach       string `json:"attach"`       //否	文本消息：填写消息文案; 其它类型消息，请参考 消息格式示例； 长度限制4096字符
+	Ext          string `json:"ext"`          //否	消息扩展字段，内容可自定义，请使用JSON格式，长度限制4096字符
+	SkipHistory  int    `json:"skipHistory"`  //否	是否跳过存储云端历史，0：不跳过，即存历史消息；1：跳过，即不存云端历史；默认0
+	AbandonRatio int    `json:"abandonRatio"` //否	可选，消息丢弃的概率。取值范围[0-9999]；
+	//其中0代表不丢弃消息，9999代表99.99%的概率丢弃消息，默认不丢弃；
+	//注意如果填写了此参数，下面的highPriority参数则会无效；
+	//此参数可用于流控特定业务类型的消息。
+	HighPriority bool `json:"highPriority"` //否	可选，true表示是高优先级消息，云信会优先保障投递这部分消息；false表示低优先级消息。默认false。
+	//强烈建议应用恰当选择参数，以便在必要时，优先保障应用内的高优先级消息的投递。若全部设置为高优先级，则等于没有设置，单个聊天室最多支持每秒10条的高优先级消息，超过的会转为普通消息。 高优先级消息可以设置进入后重发，见needHighPriorityMsgResend参数
+	NeedHighPriorityMsgResend bool `json:"needHighPriorityMsgResend"` //否	可选，true表示会重发消息，false表示不会重发消息。默认true。注:若设置为true， 用户离开聊天室之后重新加入聊天室，在有效期内还是会收到发送的这条消息，目前有效期默认30s。在没有配置highPriority时needHighPriorityMsgResend不生效。
+	UseYidun                  int  `json:"useYidun"`                  //否	可选，单条消息是否使用易盾反垃圾，可选值为0。
+	//0：（在开通易盾的情况下）不使用易盾反垃圾而是使用通用反垃圾，包括自定义消息。
+	//若不填此字段，即在默认情况下，若应用开通了易盾反垃圾功能，则使用易盾反垃圾来进行垃圾消息的判断
+	YidunAntiCheating string `json:"yidunAntiCheating"` //否	可选，易盾反垃圾增强反作弊专属字段，限制json，长度限制1024字符（详见易盾反垃圾接口文档反垃圾防刷版专属字段）
+	Bid               string `json:"bid"`               //否	可选，反垃圾业务ID，实现“单条消息配置对应反垃圾”，若不填则使用原来的反垃圾配置
+	Antispam          string `json:"antispam"`          //否	对于对接了易盾反垃圾功能的应用，本消息是否需要指定经由易盾检测的内容（antispamCustom）。 true或false, 默认false。 只对消息类型为：100 自定义消息类型 的消息生效。
+	NotifyTargetTags  string `json:"notifyTargetTags"`  //否	可选，标签表达式，最长128个字符
+	AntispamCustom    string `json:"antispamCustom"`    //否	在antispam参数为true时生效。
+	//自定义的反垃圾检测内容, JSON格式，长度限制同body字段，不能超过5000字符，要求antispamCustom格式如下：
+	//{"type":1,"data":"custom content"}
+	//字段说明：
+	//1. type: 1：文本，2：图片。
+	//2. data: 文本内容or图片地址。
+	Env string `json:"env"` //否	所属环境，根据env可以配置不同的抄送地址
+}
+
+type ImChatRoomSendMsgRes struct {
+	Time             string `json:"time"`             //"1456396333115",
+	FromAvator       string `json:"fromAvator"`       //"http://b12026.nos.netease.com/MTAxMTAxMA==/bmltYV84NDU4OF8xNDU1ODczMjA2NzUwX2QzNjkxMjI2LWY2NmQtNDQ3Ni0E2LTg4NGE4MDNmOGIwMQ==",
+	MsgidClient      string `json:"msgid_client"`     //"c9e6c306-804f-4ec3-b8f0-573778829419",
+	FromClientType   string `json:"fromClientType"`   //"REST",
+	Attach           string `json:"attach"`           //"This+is+test+msg",
+	RoomId           string `json:"roomId"`           //"36",
+	FromAccount      string `json:"fromAccount"`      //"zhangsan",
+	FromNick         string `json:"fromNick"`         //"张三",
+	Type             string `json:"type"`             //"0",
+	Ext              string `json:"ext"`              //"",
+	HighPriorityFlag int    `json:"highPriorityFlag"` //1, //高优先级消息标记，不带此标记表示非高优先级
+	MsgAbandonFlag   string `json:"msgAbandonFlag"`   //"1" //消息被丢弃标记，传abandonRatio参数时才会返回此标记，不返回此标记代表未被丢弃
+}
+type ImChatroomAddRobotReq struct {
+	Roomid    int64  `json:"roomid"`    //是	聊天室id
+	Accids    string `json:"accids"`    //是	机器人账号accid列表，必须是有效账号，账号数量上限100个
+	RoleExt   string `json:"roleExt"`   //否	机器人信息扩展字段，请使用json格式，长度4096字符
+	NotifyExt string `json:"notifyExt"` //否	机器人进入聊天室通知的扩展字段，请使用json格式，长度2048字符
+}
+type ImChatroomAddRobotRes struct {
+	FailAccids    string `json:"failAccids"`    //"[\"hzzhangsan\"]",
+	SuccessAccids string `json:"successAccids"` //"[\"hzlisi\"]",
+	OldAccids     string `json:"oldAccids"`     //"[\"hzwangwu\"]"
+}
+type ImChatroomDelRobotReq struct {
+	Roomid int64  `json:"roomid"` //是	聊天室id
+	Accids string `json:"accids"` //是	机器人账号accid列表，必须是有效账号，账号数量上限100个
+}
+type ImChatroomDelRobotRes struct {
+	FailAccids    string `json:"failAccids"`    //"[\"hzzhangsan\"]",
+	SuccessAccids string `json:"successAccids"` //"[\"hzlisi\"]",
+}
+type ImChatroomCleanRobotReq struct {
+	Roomid int64 `json:"roomid"` //是	聊天室id
+	Notify bool  `json:"notify"` //否	是否发送退出聊天室通知消息，默认为false
+}
+type ImChatroomCleanRobotRes struct {
+	Size int `json:"size"` //清空机器人的个数
+}
+type ImChatroomMuteReq struct {
+	Roomid       int64  `json:"roomid"`       //是	聊天室id
+	Operator     string `json:"operator"`     //是	操作者accid,必须是管理员或创建者
+	Target       string `json:"target"`       //是	被禁言的目标账号accid
+	MuteDuration int64  `json:"muteDuration"` //是	0:解除禁言;>0设置禁言的秒数，不能超过2592000秒(30天)
+	NeedNotify   string `json:"needNotify"`   //否	操作完成后是否需要发广播，true或false，默认true
+	NotifyExt    string `json:"notifyExt"`    //否	通知广播事件中的扩展字段，长度限制2048字符
+}
+type ImChatroomMuteRes struct {
+	MuteDuration int64 `json:"muteDuration"` //禁言的秒数
+}
+type ImChatroomMuteRoomReq struct {
+	Roomid     int64  `json:"roomid"`     //是	聊天室id
+	Operator   string `json:"operator"`   //是	操作者accid,必须是管理员或创建者
+	Mute       string `json:"mute"`       //是	true或false
+	NeedNotify string `json:"needNotify"` //否	操作完成后是否需要发广播，true或false，默认true
+	NotifyExt  string `json:"notifyExt"`  //否	通知广播事件中的扩展字段，长度限制2048字符
+}
+type ImChatroomMuteRoomRes struct {
+	Success bool `json:"success"` //操作是否成功
+}
+type ImChatroomTopnReq struct {
+	Topn      int    `json:"topn"`      //否	topn值，可选值 1~500，默认值100
+	Timestamp int64  `json:"timestamp"` //否	需要查询的指标所在的时间坐标点，不提供则默认当前时间，单位秒/毫秒皆可
+	Period    string `json:"period"`    //否	统计周期，可选值包括 hour/day, 默认hour
+	Orderby   string `json:"orderby"`   //否	取排序值,可选值 active/enter/message,分别表示按日活排序，进入人次排序和消息数排序， 默认active
+}
+type ImChatroomTopnRes struct {
+	ActiveNums int    `json:"activeNums"` // 该聊天室内的活跃数
+	Datetime   int    `json:"datetime"`   // 统计时间点，单位秒，按天统计的是当天的0点整点；按小时统计的是指定小时的整点
+	EnterNums  int    `json:"enterNums"`  // 进入人次数量
+	Msgs       int    `json:"msgs"`       // 聊天室内发生的消息数
+	Period     string `json:"period"`     // 统计周期，HOUR表示按小时统计；DAY表示按天统计
+	RoomId     int64  `json:"roomId"`     // 聊天室ID号
+}
+type ImChatroomMembersReq struct {
+	Roomid  int64 `json:"roomid"`  //是	聊天室id
+	Type    int   `json:"type"`    //是	需要查询的成员类型,0:固定成员;1:非固定成员;2:仅返回在线的固定成员
+	Endtime int64 `json:"endtime"` //是	单位毫秒，按时间倒序最后一个成员的时间戳,0表示系统当前时间
+	Limit   int64 `json:"limit"`   //是	返回条数，<=100
+}
+type ImChatroomMembersRes struct {
+	Data []ImChatroomMembersRes_ `json:"data"`
+}
+type ImChatroomMembersRes_ struct {
+	Roomid       int64  `json:"roomid"`       //聊天室id
+	Accid        string `json:"accid"`        //用户accid
+	Nick         string `json:"nick"`         //聊天室内的昵称
+	Avator       string `json:"avator"`       //聊天室内的头像
+	Ext          string `json:"ext"`          //开发者扩展字段
+	Type         string `json:"type"`         //角色类型： UNSET（未设置）， LIMITED（受限用户，黑名单或禁言）， COMMON（普通固定成员）， CREATOR（创建者）， MANAGER（管理员）， TEMPORARY（临时用户,非固定成员）
+	Level        int    `json:"level"`        //成员级别（若未设置成员级别，则无此字段）
+	OnlineStat   bool   `json:"onlineStat"`   //是否在线
+	EnterTime    int64  `json:"enterTime"`    //进入聊天室的时间点
+	Blacklisted  bool   `json:"blacklisted"`  //是否在黑名单中（若未被拉黑，则无此字段）
+	Muted        bool   `json:"muted"`        //是否被禁言（若未被禁言，则无此字段）
+	TempMuted    bool   `json:"tempMuted"`    //是否被临时禁言（若未被临时禁言，则无此字段）
+	TempMuteTtl  int64  `json:"tempMuteTtl"`  //临时禁言的解除时长,单位秒（若未被临时禁言，则无此字段）
+	IsRobot      bool   `json:"isRobot"`      //是否是聊天室机器人（若不是机器人，则无此字段）
+	RobotExpirAt int    `json:"robotExpirAt"` //机器人失效的时长，单位秒（若不是机器人，则无此字段）
+}
+type ImChatroomMembersByRoleReq struct {
+	Roomid int64  `json:"roomid"` //是	聊天室id
+	Roles  string `json:"roles"`  //是	设置需要获取的角色,格式示例： {"creator": true,"manager": true,"blacklist": false,"mute": false}
+	//字段说明：
+	//1、creator：聊天室创建者
+	//2、manager：聊天室管理员
+	//3、blacklist：黑名单用户
+	//4、mute：被禁言用户
+	//说明：设置为false或不设置表示不获取相应的角色信息
+}
+type ImChatroomMembersByRoleRes struct {
+	Data []ImChatroomMembersByRoleRes_ `json:"data"`
+}
+type ImChatroomMembersByRoleRes_ struct {
+	Roomid       int64  `json:"roomid"`       //聊天室id
+	Accid        string `json:"accid"`        //用户accid
+	Nick         string `json:"nick"`         //聊天室内的昵称
+	Avator       string `json:"avator"`       //聊天室内的头像
+	Ext          string `json:"ext"`          //开发者扩展字段
+	Type         string `json:"type"`         //角色类型：UNSET（未设置），LIMITED（受限用户，黑名单或禁言），COMMON（普通固定成员），CREATOR（创建者），MANAGER（管理员），TEMPORARY（临时用户,非固定成员）
+	Level        int    `json:"level"`        //成员级别（若未设置成员级别，则无此字段）
+	OnlineStat   bool   `json:"onlineStat"`   //是否在线
+	EnterTime    int64  `json:"enterTime"`    //进入聊天室的时间点
+	Blacklisted  bool   `json:"blacklisted"`  //是否在黑名单中（若未被拉黑，则无此字段）
+	Muted        bool   `json:"muted"`        //是否被禁言（若未被禁言，则无此字段）
+	TempMuted    bool   `json:"tempMuted"`    //是否被临时禁言（若未被临时禁言，则无此字段）
+	TempMuteTtl  int64  `json:"tempMuteTtl"`  //临时禁言的解除时长,单位秒（若未被临时禁言，则无此字段）
+	IsRobot      bool   `json:"isRobot"`      //是否是聊天室机器人（若不是机器人，则无此字段）
+	RobotExpirAt int    `json:"robotExpirAt"` //机器人失效的时长，单位秒（若不是机器人，则无此字段）
+}
+type ImChatroomMembersBatchReq struct {
+	Roomid int64  `json:"roomid"` //是	聊天室id
+	Accids string `json:"accids"` //是	\["abc","def"\], 账号列表，最多200条
+}
+type ImChatroomMembersBatchRes struct {
+	Data []ImChatroomMembersBatchRes_ `json:"data"`
+}
+type ImChatroomMembersBatchRes_ struct {
+	Roomid     int64  `json:"roomid"`
+	Accid      string `json:"accid"`
+	Nick       string `json:"nick"`
+	Type       string `json:"type"` //COMMON:普通成员(固定成员)；CREATOR:聊天室创建者；MANAGER:聊天室管理员；TEMPORARY:临时用户(非聊天室固定成员)；ANONYMOUS:匿名用户(未注册账号)；LIMITED:受限用户(黑名单+禁言)
+	OnlineStat bool   `json:"onlineStat"`
+}
+type ImChatroomChangeRoleReq struct {
+	Roomid     int64  `json:"roomid"`     //是	聊天室id
+	Accid      string `json:"accid"`      //是	需要变更角色信息的accid
+	Save       bool   `json:"save"`       //否	变更的信息是否需要持久化，默认false，仅对聊天室固定成员生效
+	NeedNotify bool   `json:"needNotify"` //否	是否需要做通知
+	NotifyExt  string `json:"notifyExt"`  //否	通知的内容，长度限制2048
+	Nick       string `json:"nick"`       //否	聊天室室内的角色信息：昵称，不超过64个字符
+	Avator     string `json:"avator"`     //否	聊天室室内的角色信息：头像
+	Ext        string `json:"ext"`        //否	聊天室室内的角色信息：开发者扩展字段
+	Bid        string `json:"bid"`        //否	反垃圾业务ID，JSON字符串，{"textbid":"","picbid":""}，若不填则使用原来的反垃圾配置
+}
+type ImChatroomUserRoomIdsReq struct {
+	Creator string `json:"creator"` //是	聊天室创建者accid
+}
+type ImChatroomUserRoomIdsRes struct {
+	Roomids []string `json:"roomids"`
+}
+type ImChatroomInOutNotifyReq struct {
+	Roomid int64 `json:"roomid"` //是	聊天室ID
+	Close  bool  `json:"close"`  //是	true/false, 是否关闭进出通知
+}
+type ImChatroomTagMuteReq struct {
+	Roomid           int64  `json:"roomid"`           //是	聊天室ID
+	Operator         string `json:"operator"`         //是	操作者accid，必须是创建者或者管理员
+	TargetTag        string `json:"targetTag"`        //是	目标标签
+	NeedNotify       bool   `json:"needNotify"`       //否	true/false，是否发送禁言通知，默认true
+	NotifyExt        string `json:"notifyExt"`        //否	禁言通知通知扩展字段
+	MuteDuration     int    `json:"muteDuration"`     //是	禁言时长，单位秒，最长30天，若等于0表示取消禁言
+	NotifyTargetTags string `json:"notifyTargetTags"` //否	禁言通知的目标标签表达式，若缺失则发送给设置了targetTag的人
+}
+type ImChatroomTagMuteRes struct {
+	MuteDuration int64 `json:"muteDuration"` //禁言时长，若取消禁言，则返回上次禁言的剩余禁言时长
+}
+type ImChatroomTagMemberCountReq struct {
+	Roomid int64  `json:"roomid"` //是	聊天室ID
+	Tag    string `json:"tag"`    //是	标签
+}
+type ImChatroomTagMemberCountRes struct {
+	Tag             string `json:"tag"`             //标签
+	OnlineUserCount int    `json:"onlineUserCount"` //在线用户数
+}
+type ImChatroomTagMembersReq struct {
+	Roomid  int64  `json:"roomid"`  //是	聊天室ID
+	Tag     string `json:"tag"`     //是	标签
+	EndTime int64  `json:"endTime"` //是	起始时间，逆序查询，若传0则表示从当前时间往前查
+	Limit   int    `json:"limit"`   //是	条数，最多100
+}
+type ImChatroomTagMembersRes struct {
+	Data []ImChatroomTagMembersRes_ `json:"data"`
+}
+type ImChatroomTagMembersRes_ struct {
+	Roomid           int64  `json:"roomid"`
+	Accid            string `json:"accid"`
+	Nick             string `json:"nick"`
+	Avator           string `json:"avator"`
+	Ext              string `json:"ext"`
+	Type             string `json:"type"`
+	Level            int    `json:"level"`
+	OnlineStat       bool   `json:"onlineStat"`
+	EnterTime        string `json:"enterTime"`
+	Blacklisted      bool   `json:"blacklisted"`
+	Muted            bool   `json:"muted"`
+	TempMuted        bool   `json:"tempMuted"`
+	TempMuteTtl      int    `json:"tempMuteTtl"`
+	IsRobot          bool   `json:"isRobot"`
+	RobotExpirAt     int    `json:"robotExpirAt"`
+	Tags             string `json:"tags"`
+	NotifyTargetTags string `json:"notifyTargetTags"` //"{\"tag\": \"abc\"} and {\"tag\": \"def\"}"
+}
+type ImChatRoomBroadcastReq struct {
+	//Roomid    int64  `json:"roomid"`    //是	聊天室id
+	MsgId     string `json:"msgId"`     //是	客户端消息id，使用uuid等随机串，msgId相同的消息会被客户端去重
+	FromAccid string `json:"fromAccid"` //是	消息发出者的账号accid
+	MsgType   int    `json:"msgType"`   //是	消息类型：
+	//0: 表示文本消息，
+	//1: 表示图片，
+	//2: 表示语音，
+	//3: 表示视频，
+	//4: 表示地理位置信息，
+	//6: 表示文件，
+	//10: 表示Tips消息，
+	//100: 自定义消息类型（特别注意，对于未对接易盾反垃圾功能的应用，该类型的消息不会提交反垃圾系统检测）
+	SubType    int    `json:"subType"`    //否	自定义消息子类型，大于0
+	ResendFlag int    `json:"resendFlag"` //否	重发消息标记，0：非重发消息，1：重发消息，如重发消息会按照msgid检查去重逻辑
+	Attach     string `json:"attach"`     //否	文本消息：填写消息文案; 其它类型消息，请参考 消息格式示例； 长度限制4096字符
+	Ext        string `json:"ext"`        //否	消息扩展字段，内容可自定义，请使用JSON格式，长度限制4096字符
+	//SkipHistory  int    `json:"skipHistory"`  //否	是否跳过存储云端历史，0：不跳过，即存历史消息；1：跳过，即不存云端历史；默认0
+	//AbandonRatio int    `json:"abandonRatio"` //否	可选，消息丢弃的概率。取值范围[0-9999]；
+	//其中0代表不丢弃消息，9999代表99.99%的概率丢弃消息，默认不丢弃；
+	//注意如果填写了此参数，下面的highPriority参数则会无效；
+	//此参数可用于流控特定业务类型的消息。
+	HighPriority bool `json:"highPriority"` //否	可选，true表示是高优先级消息，云信会优先保障投递这部分消息；false表示低优先级消息。默认false。
+	//强烈建议应用恰当选择参数，以便在必要时，优先保障应用内的高优先级消息的投递。若全部设置为高优先级，则等于没有设置，单个聊天室最多支持每秒10条的高优先级消息，超过的会转为普通消息。 高优先级消息可以设置进入后重发，见needHighPriorityMsgResend参数
+	NeedHighPriorityMsgResend bool `json:"needHighPriorityMsgResend"` //否	可选，true表示会重发消息，false表示不会重发消息。默认true。注:若设置为true， 用户离开聊天室之后重新加入聊天室，在有效期内还是会收到发送的这条消息，目前有效期默认30s。在没有配置highPriority时needHighPriorityMsgResend不生效。
+	UseYidun                  int  `json:"useYidun"`                  //否	可选，单条消息是否使用易盾反垃圾，可选值为0。
+	//0：（在开通易盾的情况下）不使用易盾反垃圾而是使用通用反垃圾，包括自定义消息。
+	//若不填此字段，即在默认情况下，若应用开通了易盾反垃圾功能，则使用易盾反垃圾来进行垃圾消息的判断
+	YidunAntiCheating string `json:"yidunAntiCheating"` //否	可选，易盾反垃圾增强反作弊专属字段，限制json，长度限制1024字符（详见易盾反垃圾接口文档反垃圾防刷版专属字段）
+	Bid               string `json:"bid"`               //否	可选，反垃圾业务ID，实现“单条消息配置对应反垃圾”，若不填则使用原来的反垃圾配置
+	Antispam          string `json:"antispam"`          //否	对于对接了易盾反垃圾功能的应用，本消息是否需要指定经由易盾检测的内容（antispamCustom）。 true或false, 默认false。 只对消息类型为：100 自定义消息类型 的消息生效。
+	NotifyTargetTags  string `json:"notifyTargetTags"`  //否	可选，标签表达式，最长128个字符
+	AntispamCustom    string `json:"antispamCustom"`    //否	在antispam参数为true时生效。
+	//自定义的反垃圾检测内容, JSON格式，长度限制同body字段，不能超过5000字符，要求antispamCustom格式如下：
+	//{"type":1,"data":"custom content"}
+	//字段说明：
+	//1. type: 1：文本，2：图片。
+	//2. data: 文本内容or图片地址。
+	Env string `json:"env"` //否	所属环境，根据env可以配置不同的抄送地址
+}
+type ImChatRoomBroadcastRes struct {
+	Time             string `json:"time"`             //"1456396333115",
+	FromAvator       string `json:"fromAvator"`       //"http://b12026.nos.netease.com/MTAxMTAxMA==/bmltYV84NDU4OF8xNDU1ODczMjA2NzUwX2QzNjkxMjI2LWY2NmQtNDQ3Ni0E2LTg4NGE4MDNmOGIwMQ==",
+	MsgidClient      string `json:"msgid_client"`     //"c9e6c306-804f-4ec3-b8f0-573778829419",
+	FromClientType   string `json:"fromClientType"`   //"REST",
+	Attach           string `json:"attach"`           //"This+is+test+msg",
+	RoomId           string `json:"roomId"`           //"36",
+	FromAccount      string `json:"fromAccount"`      //"zhangsan",
+	FromNick         string `json:"fromNick"`         //"张三",
+	Type             string `json:"type"`             //"0",
+	Ext              string `json:"ext"`              //"",
+	HighPriorityFlag int    `json:"highPriorityFlag"` //1, //高优先级消息标记，不带此标记表示非高优先级
+	//MsgAbandonFlag   string `json:"msgAbandonFlag"`   //"1" //消息被丢弃标记，传abandonRatio参数时才会返回此标记，不返回此标记代表未被丢弃
+}
+type ImChatRoomReCallReq struct {
+	Roomid      int64  `json:"roomid"`      //是	聊天室id
+	MsgTimetag  int64  `json:"msgTimetag"`  //是	被撤回消息的时间戳
+	FromAcc     string `json:"fromAcc"`     //是	被撤回消息的消息发送者accid
+	MsgId       string `json:"msgId"`       //是	被撤回消息的消息id
+	OperatorAcc string `json:"operatorAcc"` //是	消息撤回的操作者accid
+	NotifyExt   string `json:"notifyExt"`   //否	消息撤回的通知扩展字段，最长1024字符
+}
+type ImChatRoomSendMsgToOneReq struct {
+	Roomid    int64  `json:"roomid"`    //是	聊天室id
+	MsgId     string `json:"msgId"`     //是	客户端消息id，使用uuid等随机串，msgId相同的消息会被客户端去重
+	FromAccid string `json:"fromAccid"` //是	消息发出者的账号accid
+	ToAccids  string `json:"toAccids"`  //是	消息接收者accid列表，最大100个  ["acc1","acc2"]
+	MsgType   int    `json:"msgType"`   //是	消息类型：
+	//0: 表示文本消息，
+	//1: 表示图片，
+	//2: 表示语音，
+	//3: 表示视频，
+	//4: 表示地理位置信息，
+	//6: 表示文件，
+	//10: 表示Tips消息，
+	//100: 自定义消息类型（特别注意，对于未对接易盾反垃圾功能的应用，该类型的消息不会提交反垃圾系统检测）
+	SubType    int    `json:"subType"`    //否	自定义消息子类型，大于0
+	ResendFlag int    `json:"resendFlag"` //否	重发消息标记，0：非重发消息，1：重发消息，如重发消息会按照msgid检查去重逻辑
+	Attach     string `json:"attach"`     //否	文本消息：填写消息文案; 其它类型消息，请参考 消息格式示例； 长度限制4096字符
+	Ext        string `json:"ext"`        //否	消息扩展字段，内容可自定义，请使用JSON格式，长度限制4096字符
+	//SkipHistory  int    `json:"skipHistory"`  //否	是否跳过存储云端历史，0：不跳过，即存历史消息；1：跳过，即不存云端历史；默认0
+	//AbandonRatio int    `json:"abandonRatio"` //否	可选，消息丢弃的概率。取值范围[0-9999]；
+	//其中0代表不丢弃消息，9999代表99.99%的概率丢弃消息，默认不丢弃；
+	//注意如果填写了此参数，下面的highPriority参数则会无效；
+	//此参数可用于流控特定业务类型的消息。
+	//HighPriority bool `json:"highPriority"` //否	可选，true表示是高优先级消息，云信会优先保障投递这部分消息；false表示低优先级消息。默认false。
+	////强烈建议应用恰当选择参数，以便在必要时，优先保障应用内的高优先级消息的投递。若全部设置为高优先级，则等于没有设置，单个聊天室最多支持每秒10条的高优先级消息，超过的会转为普通消息。 高优先级消息可以设置进入后重发，见needHighPriorityMsgResend参数
+	//NeedHighPriorityMsgResend bool `json:"needHighPriorityMsgResend"` //否	可选，true表示会重发消息，false表示不会重发消息。默认true。注:若设置为true， 用户离开聊天室之后重新加入聊天室，在有效期内还是会收到发送的这条消息，目前有效期默认30s。在没有配置highPriority时needHighPriorityMsgResend不生效。
+	UseYidun int `json:"useYidun"` //否	可选，单条消息是否使用易盾反垃圾，可选值为0。
+	//0：（在开通易盾的情况下）不使用易盾反垃圾而是使用通用反垃圾，包括自定义消息。
+	//若不填此字段，即在默认情况下，若应用开通了易盾反垃圾功能，则使用易盾反垃圾来进行垃圾消息的判断
+	YidunAntiCheating string `json:"yidunAntiCheating"` //否	可选，易盾反垃圾增强反作弊专属字段，限制json，长度限制1024字符（详见易盾反垃圾接口文档反垃圾防刷版专属字段）
+	Bid               string `json:"bid"`               //否	可选，反垃圾业务ID，实现“单条消息配置对应反垃圾”，若不填则使用原来的反垃圾配置
+	Antispam          string `json:"antispam"`          //否	对于对接了易盾反垃圾功能的应用，本消息是否需要指定经由易盾检测的内容（antispamCustom）。 true或false, 默认false。 只对消息类型为：100 自定义消息类型 的消息生效。
+	//NotifyTargetTags  string `json:"notifyTargetTags"`  //否	可选，标签表达式，最长128个字符
+	AntispamCustom string `json:"antispamCustom"` //否	在antispam参数为true时生效。
+	//自定义的反垃圾检测内容, JSON格式，长度限制同body字段，不能超过5000字符，要求antispamCustom格式如下：
+	//{"type":1,"data":"custom content"}
+	//字段说明：
+	//1. type: 1：文本，2：图片。
+	//2. data: 文本内容or图片地址。
+	Env string `json:"env"` //否	所属环境，根据env可以配置不同的抄送地址
+}
+type ImChatRoomSendMsgToOneRes struct {
+	Time           string `json:"time"`           //"1456396333115",
+	FromAvator     string `json:"fromAvator"`     //"http://b12026.nos.netease.com/MTAxMTAxMA==/bmltYV84NDU4OF8xNDU1ODczMjA2NzUwX2QzNjkxMjI2LWY2NmQtNDQ3Ni0E2LTg4NGE4MDNmOGIwMQ==",
+	MsgidClient    string `json:"msgid_client"`   //"c9e6c306-804f-4ec3-b8f0-573778829419",
+	FromClientType string `json:"fromClientType"` //"REST",
+	Attach         string `json:"attach"`         //"This+is+test+msg",
+	RoomId         string `json:"roomId"`         //"36",
+	FromAccount    string `json:"fromAccount"`    //"zhangsan",
+	FromNick       string `json:"fromNick"`       //"张三",
+	Type           string `json:"type"`           //"0",
+	Ext            string `json:"ext"`            //"",
+	//HighPriorityFlag int    `json:"highPriorityFlag"` //1, //高优先级消息标记，不带此标记表示非高优先级
+	//MsgAbandonFlag   string `json:"msgAbandonFlag"`   //"1" //消息被丢弃标记，传abandonRatio参数时才会返回此标记，不返回此标记代表未被丢弃
+}

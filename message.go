@@ -9,10 +9,17 @@ import (
 )
 
 const (
-	sendMsgPoint            = neteaseBaseURL + "/msg/sendMsg.action"
-	sendBatchMsgPoint       = neteaseBaseURL + "/msg/sendBatchMsg.action"
-	sendBatchAttachMsgPoint = neteaseBaseURL + "/msg/sendBatchAttachMsg.action"
-	messageRecallPoint      = neteaseBaseURL + "/msg/recall.action"
+	sendMsgPoint            = neteaseBaseURL + "/msg/sendMsg.action"            //发送普通消息
+	sendBatchMsgPoint       = neteaseBaseURL + "/msg/sendBatchMsg.action"       //批量发送点对点普通消息
+	sendAttachMsgPoint      = neteaseBaseURL + "/msg/sendAttachMsg.action"      //发送自定义系统通知
+	sendBatchAttachMsgPoint = neteaseBaseURL + "/msg/sendBatchAttachMsg.action" //批量发送点对点自定义系统通知
+	uploadPoint             = neteaseBaseURL + "/msg/upload.action"             //文件上传
+	fileUploadPoint         = neteaseBaseURL + "/msg/fileUpload.action"         //文件上传（multipart方式）
+	jobNosDelPoint          = neteaseBaseURL + "/msg/job/nos/del.action"        //上传NOS文件清理任务
+	messageRecallPoint      = neteaseBaseURL + "/msg/recall.action"             //消息撤回
+	broadcastMsgPoint       = neteaseBaseURL + "/msg/broadcastMsg.action"       //发送广播消息
+	delMsgOneWayPoint       = neteaseBaseURL + "/msg/delMsgOneWay.action"       //单向撤回消息
+	delRoamSessionPoint     = neteaseBaseURL + "/msg/delRoamSession.action"     //删除会话漫游
 )
 
 const (

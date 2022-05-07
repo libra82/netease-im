@@ -8,14 +8,24 @@ import (
 	netease "github.com/libra82/netease-im"
 )
 
-var client = netease.CreateImClient("", "", "")
+var client *netease.ImClient
 
 func init() {
 	os.Setenv("GOCACHE", "off")
+	client = netease.CreateImClient("730dfa83ac3d4fd9172aaaaaaaaaa", "aaaaaaaaaaae", "")
 }
 
 func TestToken(t *testing.T) {
-	user := &netease.ImUser{ID: "test2", Name: "test3", Gender: 1}
+	user := &netease.ImUser{ID: "1", Name: "david.tao", Gender: 1}
+	tk, err := client.CreateImUser(user)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(tk)
+}
+
+func TestToken2(t *testing.T) {
+	user := &netease.ImUser{ID: "2", Name: "joan", Gender: 2}
 	tk, err := client.CreateImUser(user)
 	if err != nil {
 		t.Error(err)

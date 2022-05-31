@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	netease "github.com/libra82/netease-im"
+	"github.com/libra82/netease-im"
 )
 
 var client *netease.ImClient
@@ -38,8 +38,8 @@ func TestRefreshToken(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	b, err := json.Marshal(tk)
-	t.Log(string(b), err)
+	b, err1 := json.Marshal(tk)
+	t.Log(string(b), err1)
 }
 
 func Benchmark_SyncMap(b *testing.B) {

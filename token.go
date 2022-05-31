@@ -2,7 +2,6 @@ package netease
 
 import (
 	"encoding/json"
-	"errors"
 	"strconv"
 
 	"github.com/json-iterator/go"
@@ -28,7 +27,7 @@ const (
  * @param gender 用户性别，0表示未知，1表示男，2女表示女，其它会报参数错误
  * @param ex 用户名片扩展字段，最大长度1024字符，用户可自行扩展，建议封装成JSON字符串
  */
-func (c *ImClient) CreateImUser(u *ImUser) (*TokenInfo, error) {
+func (c *ImClient) CreateImUser(u *ImUser) (*TokenInfo, *MyError) {
 	param := map[string]string{"accid": u.ID}
 
 	if len(u.Name) > 0 {
@@ -68,31 +67,37 @@ func (c *ImClient) CreateImUser(u *ImUser) (*TokenInfo, error) {
 
 	resp, err := client.Post(createImUserPoint)
 	if err != nil {
-		return nil, err
+		myError := &MyError{Code: -1, Msg: "网络请求报错：" + err.Error()}
+		return nil, myError
+
 	}
 
 	var jsonRes map[string]*json.RawMessage
 	err = jsoniter.Unmarshal(resp.Body(), &jsonRes)
 	if err != nil {
-		return nil, err
+		myError := &MyError{Code: -2, Msg: "解析响应体报错：" + err.Error()}
+		return nil, myError
 	}
 
 	var code int
 	err = json.Unmarshal(*jsonRes["code"], &code)
 	if err != nil {
-		return nil, err
+		myError := &MyError{Code: -3, Msg: "解析响应体报错：" + err.Error()}
+		return nil, myError
 	}
 
 	if code != 200 {
 		var msg string
 		json.Unmarshal(*jsonRes["desc"], &msg)
-		return nil, errors.New(msg)
+		myError := &MyError{Code: code, Msg: "云信服务报错：" + msg}
+		return nil, myError
 	}
 
 	tk := &TokenInfo{}
 	err = jsoniter.Unmarshal(*jsonRes["info"], tk)
 	if err != nil {
-		return nil, err
+		myError := &MyError{Code: -4, Msg: "解析响应体报错：" + err.Error()}
+		return nil, myError
 	}
 
 	return tk, nil
@@ -102,9 +107,11 @@ func (c *ImClient) CreateImUser(u *ImUser) (*TokenInfo, error) {
 /**
  * @param accid 网易云通信ID，最大长度32字符，必须保证一个APP内唯一
  */
-func (c *ImClient) RefreshToken(accid string) (*TokenInfo, error) {
+func (c *ImClient) RefreshToken(accid string) (*TokenInfo, *MyError) {
 	if len(accid) == 0 {
-		return nil, errors.New("必须指定网易云通信ID")
+		//return nil, errors.New("必须指定网易云通信ID")
+		myError := &MyError{Code: 0, Msg: "网络请求报错：必须指定网易云通信ID"}
+		return nil, myError
 	}
 
 	param := map[string]string{"accid": accid}
@@ -114,31 +121,36 @@ func (c *ImClient) RefreshToken(accid string) (*TokenInfo, error) {
 
 	resp, err := client.Post(refreshTokenPoint)
 	if err != nil {
-		return nil, err
+		myError := &MyError{Code: -1, Msg: "网络请求报错：" + err.Error()}
+		return nil, myError
 	}
 
 	var jsonRes map[string]*json.RawMessage
 	err = jsoniter.Unmarshal(resp.Body(), &jsonRes)
 	if err != nil {
-		return nil, err
+		myError := &MyError{Code: -2, Msg: "解析响应体报错：" + err.Error()}
+		return nil, myError
 	}
 
 	var code int
 	err = json.Unmarshal(*jsonRes["code"], &code)
 	if err != nil {
-		return nil, err
+		myError := &MyError{Code: -3, Msg: "解析响应体报错：" + err.Error()}
+		return nil, myError
 	}
 
 	if code != 200 {
 		var msg string
 		json.Unmarshal(*jsonRes["desc"], &msg)
-		return nil, errors.New(msg)
+		myError := &MyError{Code: code, Msg: "云信服务报错：" + msg}
+		return nil, myError
 	}
 
 	tk := &TokenInfo{}
 	err = jsoniter.Unmarshal(*jsonRes["info"], tk)
 	if err != nil {
-		return nil, err
+		myError := &MyError{Code: -4, Msg: "解析响应体报错：" + err.Error()}
+		return nil, myError
 	}
 
 	return tk, nil
